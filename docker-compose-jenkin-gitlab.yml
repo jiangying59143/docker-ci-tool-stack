@@ -1,0 +1,37 @@
+version: '3'
+
+networks:
+  prodnetwork:
+    driver: bridge
+
+volumes:
+  jenkins-data:
+
+services:
+  jenkins:
+    build: ./jenkins
+    restart: always
+    ports:
+      - "18080:8080"
+    networks:
+      - prodnetwork
+    volumes:
+      - ./jenkins/jenkins_home:/var/jenkins_home
+
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    environment:
+      - external_url='http://192.168.240.175:180'
+      - nginx['listen_port']=180
+    networks:
+      - prodnetwork
+    ports:
+      - "180:180"
+      - "20080:80"
+      - "10443:443"
+      - "10022:22"
+    volumes:
+      - ./gitlab/opt/gitlab/config:/etc/gitlab
+      - ./gitlab/opt/gitlab/logs:/var/log/gitlab
+      - ./gitlab/opt/gitlab/data:/var/opt/gitlab
